@@ -46,19 +46,6 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             const SizedBox(height: 20),
 
-            // App name
-            const Text(
-              'SPENDLYTIC',
-              style: TextStyle(
-                fontSize: 32,
-                color: Colors.lightBlueAccent,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.5,
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
             // Optional loading indicator
             const CircularProgressIndicator(
               color: Colors.lightBlueAccent,
