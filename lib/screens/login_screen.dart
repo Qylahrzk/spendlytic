@@ -1,72 +1,89 @@
+// lib/screen/login_screen.dart
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
-
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
-
 
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-
   bool _obscurePassword = true;
+  late Box userBox;
 
+  @override
+  void initState() {
+    super.initState();
+    userBox = Hive.box('user');
+  }
 
-  // Validates email
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  // Validate email
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Email cannot be empty';
-    } else if (!RegExp(r'^[a-zA-Z0-9]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z0-9]{2,}$').hasMatch(value)) {
+    } else if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+        .hasMatch(value)) {
       return 'Invalid email format';
     }
     return null;
   }
 
+  // Validate password
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Password cannot be empty';
+    }
+    return null;
+  }
 
   // Handle login
   void _login() {
-    final userBox = Hive.box('user');
-    final email = _emailController.text.trim().toLowerCase(); // Normalize email
-    final password = _passwordController.text;
+    // Close keyboard
+    FocusScope.of(context).unfocus();
 
-
-    // Debugging: Print entered email and stored data
-    if (kDebugMode) {
-      print("Attempting login with email: $email");
-      print("Hive data: ${userBox.toMap()}");
-    }
-
-
-    if (userBox.containsKey(email)) {
-      // Retrieve the user object
-      final userData = userBox.get(email);
-      final storedPassword = userData['password']; // Extract the password field
-
+    if (_formKey.currentState!.validate()) {
+      final email = _emailController.text.trim().toLowerCase();
+      final password = _passwordController.text;
 
       if (kDebugMode) {
-        print("Stored Password: $storedPassword, Entered Password: $password");
+        print("Login attempt: $email");
+        print("Hive Data: ${userBox.toMap()}");
       }
 
+      if (userBox.containsKey(email)) {
+        final userData = userBox.get(email);
+        if (userData is Map && userData.containsKey('password')) {
+          final storedPassword = userData['password'];
 
-      if (storedPassword == password) {
-        Navigator.pushReplacementNamed(context, '/home');
+          if (storedPassword == password) {
+            // Login success → navigate
+            Navigator.pushReplacementNamed(context, '/home');
+          } else {
+            _showErrorDialog('Incorrect password.');
+          }
+        } else {
+          _showErrorDialog('User data corrupted. Please sign up again.');
+        }
       } else {
-        _showErrorDialog('Invalid credentials');
+        _showErrorDialog('Account does not exist. Please sign up.');
       }
-    } else {
-      _showErrorDialog('Account does not exist');
     }
   }
-
 
   // Show error dialog
   void _showErrorDialog(String message) {
@@ -74,13 +91,11 @@ class _LoginScreenState extends State<LoginScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Error"),
+          title: const Text("Login Failed"),
           content: Text(message),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: () => Navigator.pop(context),
               child: const Text('OK'),
             ),
           ],
@@ -89,14 +104,12 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-
   // Toggle password visibility
   void _togglePasswordVisibility() {
     setState(() {
       _obscurePassword = !_obscurePassword;
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -106,13 +119,15 @@ class _LoginScreenState extends State<LoginScreen> {
         title: const Text('Log In'),
         backgroundColor: Colors.black,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const SizedBox(height: 40),
+
               // App title
               const Text(
                 'SPENDLYTIC',
@@ -122,8 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 40), // Spacing after title
-
+              const SizedBox(height: 40),
 
               // Email field
               TextFormField(
@@ -132,11 +146,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Email',
                   labelStyle: TextStyle(color: Colors.grey),
+                  border: OutlineInputBorder(),
                 ),
                 validator: _validateEmail,
+                keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 16),
-
 
               // Password field
               TextFormField(
@@ -145,6 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: InputDecoration(
                   labelText: 'Password',
                   labelStyle: const TextStyle(color: Colors.grey),
+                  border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscurePassword ? Icons.visibility_off : Icons.visibility,
@@ -154,9 +170,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 obscureText: _obscurePassword,
+                validator: _validatePassword,
               ),
               const SizedBox(height: 20),
-
 
               // Login button
               ElevatedButton(
@@ -168,6 +184,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: const Text('Log In'),
               ),
 
+              const SizedBox(height: 12),
 
               // Signup navigation
               TextButton(
@@ -186,5 +203,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
-
