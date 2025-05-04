@@ -1,15 +1,13 @@
-// lib/screen/splash_screen.dart
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:spendlytic/screens/login_screen.dart';
-
+import 'package:hive/hive.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _SplashScreenState createState() => _SplashScreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
@@ -20,42 +18,50 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToNextScreen() async {
-    await Future.delayed(const Duration(seconds: 3)); // display for 3 seconds
-    Navigator.pushReplacement(
-      BuildContext as BuildContext,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-    );
+    await Future.delayed(const Duration(seconds: 2)); // Wait for splash duration
+
+    final userBox = await Hive.openBox('user');
+    final email = userBox.get('email', defaultValue: null); // Check if user data exists
+
+    if (email != null) {
+      Navigator.pushReplacementNamed(context, '/home'); // Navigate to Home
+    } else {
+      Navigator.pushReplacementNamed(context, '/login'); // Navigate to Login
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // or your app's theme color
+      backgroundColor: Colors.black,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Logo
-            Image.asset('assets/logo.png', width: 150, height: 150),
-
+            // Logo image
+            Image.asset(
+              'assets/images/logo.png', // Path to your logo
+              width: 150,
+              height: 150,
+            ),
             const SizedBox(height: 20),
 
             // App name
-            Text(
+            const Text(
               'SPENDLYTIC',
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 32,
+                color: Colors.lightBlueAccent,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1.5,
-                color: Colors.blueAccent, // you can adjust color here
               ),
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 30),
 
-            // Loading indicator
+            // Optional loading indicator
             const CircularProgressIndicator(
-              color: Colors.blueAccent, // match theme color
+              color: Colors.lightBlueAccent,
             ),
           ],
         ),
