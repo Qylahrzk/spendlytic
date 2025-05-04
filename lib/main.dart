@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-
-// Import your screens
 import 'package:spendlytic/screens/splash_screen.dart';
 import 'package:spendlytic/screens/login_screen.dart';
-import 'package:spendlytic/screens/signup_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Hive (important!)
+  // Initialize Hive using hive_flutter (safer than basic Hive.init)
   await Hive.initFlutter();
 
   runApp(const SpendlyticApp());
@@ -26,18 +23,11 @@ class SpendlyticApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
         scaffoldBackgroundColor: Colors.black,
-        textTheme: const TextTheme(
-          bodyMedium: TextStyle(color: Colors.white),
-        ),
       ),
-
-      // Initial screen
-      home: const SplashScreen(),
-
-      // Define named routes
+      initialRoute: '/',
       routes: {
-        '/login': (context) => const LoginScreen(),
-        '/signup': (context) => const SignupScreen()
+        '/': (context) => const SplashScreen(),
+        '/login': (context) => const LoginScreen()
       },
     );
   }
