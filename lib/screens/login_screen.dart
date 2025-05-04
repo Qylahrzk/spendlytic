@@ -1,4 +1,4 @@
-// lib/screen/login_screen.dart
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +32,6 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  // Validate email
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Email cannot be empty';
@@ -43,7 +42,6 @@ class _LoginScreenState extends State<LoginScreen> {
     return null;
   }
 
-  // Validate password
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Password cannot be empty';
@@ -51,9 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return null;
   }
 
-  // Handle login
   void _login() {
-    // Close keyboard
     FocusScope.of(context).unfocus();
 
     if (_formKey.currentState!.validate()) {
@@ -71,7 +67,6 @@ class _LoginScreenState extends State<LoginScreen> {
           final storedPassword = userData['password'];
 
           if (storedPassword == password) {
-            // Login success → navigate
             Navigator.pushReplacementNamed(context, '/home');
           } else {
             _showErrorDialog('Incorrect password.');
@@ -85,7 +80,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // Show error dialog
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
@@ -104,7 +98,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // Toggle password visibility
   void _togglePasswordVisibility() {
     setState(() {
       _obscurePassword = !_obscurePassword;
@@ -114,89 +107,96 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text('Log In'),
-        backgroundColor: Colors.black,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 40),
-
-              // App title
-              const Text(
-                'SPENDLYTIC',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              // Email field
-              TextFormField(
-                controller: _emailController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  labelStyle: TextStyle(color: Colors.grey),
-                  border: OutlineInputBorder(),
-                ),
-                validator: _validateEmail,
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 16),
-
-              // Password field
-              TextFormField(
-                controller: _passwordController,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  labelStyle: const TextStyle(color: Colors.grey),
-                  border: const OutlineInputBorder(),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                      color: Colors.grey,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFB39DDB), Color(0xFFD1C4E9)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                Hero(
+                  tag: 'appLogo',
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    width: 150,
+                    height: 150,
                     ),
-                    onPressed: _togglePasswordVisibility,
+                  ),
+                const SizedBox(height: 50),
+
+                // Email
+                TextFormField(
+                  controller: _emailController,
+                  style: const TextStyle(color: Colors.black),
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    labelStyle: TextStyle(color: Colors.black87),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: _validateEmail,
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 16),
+
+                // Password
+                TextFormField(
+                  controller: _passwordController,
+                  style: const TextStyle(color: Colors.black),
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    labelStyle: const TextStyle(color: Colors.black87),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: const OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.grey,
+                      ),
+                      onPressed: _togglePasswordVisibility,
+                    ),
+                  ),
+                  obscureText: _obscurePassword,
+                  validator: _validatePassword,
+                ),
+                const SizedBox(height: 24),
+
+                // Log In Button (dark purple)
+                ElevatedButton(
+                  onPressed: _login,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    foregroundColor: Colors.white, // white text
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text('Log In', style: TextStyle(fontSize: 16)),
+                ),
+                const SizedBox(height: 12),
+
+                // Sign Up
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/signup');
+                  },
+                  child: const Text(
+                    "Don't have account? Sign Up",
+                    style: TextStyle(color: Colors.black87),
                   ),
                 ),
-                obscureText: _obscurePassword,
-                validator: _validatePassword,
-              ),
-              const SizedBox(height: 20),
-
-              // Login button
-              ElevatedButton(
-                onPressed: _login,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.lightBlueAccent,
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-                child: const Text('Log In'),
-              ),
-
-              const SizedBox(height: 12),
-
-              // Signup navigation
-              TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/signup');
-                },
-                child: const Text(
-                  'Create an Account',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

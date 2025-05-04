@@ -20,20 +20,17 @@ class _SignupScreenState extends State<SignupScreen> {
   void _signup() {
     final userBox = Hive.box('user');
     final name = _nameController.text.trim();
-    final email = _emailController.text.trim().toLowerCase(); // Normalize email
+    final email = _emailController.text.trim().toLowerCase();
     final password = _passwordController.text;
 
-    // Debugging: Print entered values
     if (kDebugMode) {
       print("Signing up with: Name=$name, Email=$email, Password=$password");
       print("Existing users: ${userBox.toMap()}");
     }
 
-    // Check if email already exists
     if (userBox.containsKey(email)) {
       _showErrorDialog("Email already exists.");
     } else {
-      // Save user data
       userBox.put(email, {
         'name': name,
         'password': password,
@@ -43,7 +40,6 @@ class _SignupScreenState extends State<SignupScreen> {
         print("User $email registered successfully.");
       }
 
-      // Navigate back to login screen
       Navigator.pushReplacementNamed(context, '/login');
     }
   }
@@ -83,36 +79,34 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFFEDE7F6), // Soft purple background
       appBar: AppBar(
         title: const Text('Sign Up'),
-        backgroundColor: Colors.black,
+        backgroundColor: const Color(0xFF9575CD), // Deeper purple AppBar
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: SingleChildScrollView( // To avoid overflow on small screens
+          child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  'SPENDLYTIC',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                const SizedBox(height: 30),
+
+                // Logo
+                Image.asset(
+                  'assets/images/logo.png',
+                  height: 120,
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 30),
 
                 // Name
                 TextFormField(
                   controller: _nameController,
-                  style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
                     labelText: 'Name',
-                    labelStyle: TextStyle(color: Colors.grey),
+                    border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -126,10 +120,9 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Email
                 TextFormField(
                   controller: _emailController,
-                  style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
                     labelText: 'Email',
-                    labelStyle: TextStyle(color: Colors.grey),
+                    border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -141,20 +134,19 @@ class _SignupScreenState extends State<SignupScreen> {
                     }
                     return null;
                   },
+                  keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 20),
 
                 // Password
                 TextFormField(
                   controller: _passwordController,
-                  style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    labelStyle: const TextStyle(color: Colors.grey),
+                    border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                        color: Colors.grey,
                       ),
                       onPressed: _togglePasswordVisibility,
                     ),
@@ -180,21 +172,17 @@ class _SignupScreenState extends State<SignupScreen> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.lightBlueAccent,
+                    backgroundColor: const Color(0xFF9575CD), // Purple button
                     minimumSize: const Size(double.infinity, 50),
                   ),
                   child: const Text('Sign Up'),
                 ),
-
                 const SizedBox(height: 20),
 
                 // Navigate to Login
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text(
-                    'Already have an account? Sign In',
-                    style: TextStyle(color: Colors.grey),
-                  ),
+                  child: const Text('Already have an account? Sign In'),
                 ),
               ],
             ),
